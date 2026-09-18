@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherWave - Modern Live Weather Dashboard</title>
+    <meta name="description" content="Real-time live weather forecast dashboard featuring hourly timeline, 5-day forecast, air conditions, and UV index.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome / Boxicons Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header & Top Navigation -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-cloud-bolt"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>WeatherWave</h1>
+                    <span class="status-badge" id="statusBadge">
+                        <span class="status-dot"></span> Live API Data
+                    </span>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search city (e.g., Homagama, London, Tokyo)..." autocomplete="off">
+                <button id="locationBtn" class="icon-btn" aria-label="Use Current Location" title="Use Current Location">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                </button>
+                <button id="searchBtn" aria-label="Search City">
+                    <span>Search</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <div id="searchSuggestions" class="search-suggestions hidden"></div>
+            </div>
+
+            <!-- Unit Toggle -->
+            <div class="unit-toggle">
+                <button id="unitCelsius" class="unit-btn active">°C</button>
+                <button id="unitFahrenheit" class="unit-btn">°F</button>
+            </div>
+        </header>
+
+        <!-- Recent Search History Bar -->
+        <div id="recentSearchesBar" class="recent-searches-bar hidden">
+            <span class="recent-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent:</span>
+            <div id="recentPills" class="recent-pills"></div>
+        </div>
+
+        <!-- Main Dashboard Layout Grid -->
+        <main class="dashboard-grid">
+            <!-- Left & Center Column: Main Weather + Today's Forecast + Air Conditions -->
+            <div class="left-section">
+                <!-- Main Weather Card -->
+                <section class="card main-weather-card">
+                    <div class="card-bg-gradient"></div>
+                    <div class="weather-header-info">
+                        <div>
+                            <h2 id="cityName" class="city-title">--</h2>
+                            <p id="currentDateTime" class="date-time">--</p>
+                        </div>
+                        <div id="weatherBadge" class="weather-badge">
+                            <i class="fa-regular fa-compass"></i> Live
+                        </div>
+                    </div>
+
+                    <div class="weather-body-info">
+                        <div class="temp-wrapper">
+                            <span id="mainTemp" class="temp-value">--°</span>
+                            <div class="weather-sub-details">
+                                <p id="weatherDesc" class="weather-desc">Loading weather data...</p>
+                                <p id="feelsLike" class="feels-like">Feels like --°C</p>
+                            </div>
+                        </div>
+
+                        <div class="weather-icon-large">
+                            <img id="mainWeatherIcon" src="https://openweathermap.org/img/wn/10d@4x.png" alt="Weather condition icon">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hourly Forecast Timeline -->
+                <section class="card hourly-forecast-card">
+                    <div class="section-title">
+                        <h3><i class="fa-solid fa-clock"></i> TODAY'S HOURLY FORECAST</h3>
+                    </div>
+                    <div class="hourly-slider" id="hourlyContainer">
+                        <!-- Dynamic hourly cards injected by JS -->
+                        <div class="hourly-skeleton">Loading forecast hours...</div>
+                    </div>
+                </section>
+
+                <!-- Air Conditions & Detailed Metrics Grid -->
+                <section class="air-conditions-grid">
+                    <!-- Air Conditions Card -->
+                    <div class="card air-conditions-card">
+                        <div class="section-title">
+                            <h3><i class="fa-solid fa-wind"></i> AIR CONDITIONS</h3>
+                        </div>
+                        <div class="conditions-list">
+                            <div class="condition-item">
+                                <div class="condition-icon"><i class="fa-solid fa-temperature-three-quarters"></i></div>
+                                <div class="condition-data">
+                                    <span class="label">Feels Like</span>
+                                    <span id="detailFeelsLike" class="value">--</span>
+                                </div>
+                            </div>
+                            <div class="condition-item">
+                                <div class="condition-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                                <div class="condition-data">
+                                    <span class="label">Wind Speed</span>
+                                    <span id="detailWind" class="value">--</span>
+                                </div>
+                            </div>
+                            <div class="condition-item">
+                                <div class="condition-icon"><i class="fa-solid fa-droplet"></i></div>
+                                <div class="condition-data">
+                                    <span class="label">Humidity</span>
+                                    <span id="detailHumidity" class="value">--</span>
+                                </div>
+                            </div>
+                            <div class="condition-item">
+                                <div class="condition-icon"><i class="fa-solid fa-eye"></i></div>
+                                <div class="condition-data">
+                                    <span class="label">Visibility</span>
+                                    <span id="detailVisibility" class="value">--</span>
+                                </div>
+                            </div>
+                            <div class="condition-item">
+                                <div class="condition-icon"><i class="fa-solid fa-sun"></i></div>
+                                <div class="condition-data">
+                                    <span class="label">UV Index</span>
+                                    <span id="detailUV" class="value">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Side Stats Cards: Pressure, Dew Point, Sun Times -->
+                    <div class="side-stats-grid">
+                        <div class="card stat-card">
+                            <div class="stat-header">
+                                <i class="fa-solid fa-compress-arrows-alt"></i>
+                                <span>PRESSURE</span>
+                            </div>
+                            <div id="statPressure" class="stat-value">-- hPa</div>
+                        </div>
+
+                        <div class="card stat-card">
+                            <div class="stat-header">
+                                <i class="fa-solid fa-water"></i>
+                                <span>DEW POINT</span>
+                            </div>
+                            <div id="statDewPoint" class="stat-value">--°C</div>
+                        </div>
+
+                        <div class="card sun-card">
+                            <div class="section-title">
+                                <h3><i class="fa-solid fa-sun-plant-wilt"></i> SUN & MOON</h3>
+                            </div>
+                            <div class="sun-times">
+                                <div class="sun-item">
+                                    <i class="fa-solid fa-sun-sunrise sun-icon sunrise"></i>
+                                    <div>
+                                        <span class="sun-label">SUNRISE</span>
+                                        <span id="sunriseTime" class="sun-val">--:-- AM</span>
+                                    </div>
+                                </div>
+                                <div class="sun-item">
+                                    <i class="fa-solid fa-sun-sunset sun-icon sunset"></i>
+                                    <div>
+                                        <span class="sun-label">SUNSET</span>
+                                        <span id="sunsetTime" class="sun-val">--:-- PM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: 5-Day Forecast -->
+            <div class="right-section">
+                <section class="card forecast-5day-card">
+                    <div class="section-title">
+                        <h3><i class="fa-solid fa-calendar-days"></i> 5-DAY FORECAST</h3>
+                    </div>
+                    <div id="forecastContainer" class="forecast-list">
+                        <!-- Dynamic 5-day forecast cards injected by JS -->
+                        <div class="forecast-skeleton">Loading 5-day forecast...</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>WeatherWave Dashboard &copy; 2026 • Powered by OpenWeatherMap API</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
